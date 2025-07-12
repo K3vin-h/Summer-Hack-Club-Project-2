@@ -1,0 +1,47 @@
+
+:root[data-theme="light"] {
+  --text: #04182f;
+  --text-secondary: #556080;
+  --background: #fefefe;
+  --primary: #0e468b;
+  --secondary: #5a4db7;
+  --accent: #1e40af; 
+  --box-shadow: rgba(72, 72, 72, 0.682);
+  --input-border: #cfd8e3;
+  --input-bg: #fff;
+  --table-bg: #f9fbff;
+  --error: #ef4444;
+  --border-color: black;
+}
+
+
+:root[data-theme="dark"] {
+  --text: #e0e6f0;
+  --text-secondary: #a0aec0;
+  --background: #121622;
+  --primary: #60a5fa; 
+  --secondary: #3b82f6;
+  --accent: #2563eb; 
+  --box-shadow: rgba(50, 75, 150, 0.4);
+  --input-border: #2a2f45;
+  --input-bg: #1f2233;
+  --table-bg: #1c2033;
+  --error: #f87171;
+  --border-color: white;
+}
+
+/* Reset and basics */
+* {
+  transition: background-color 0.4s ease, color 0.4s ease;
+  box-sizing: border-box;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+}
