@@ -38,3 +38,4 @@ coverage/
 # Dependency directories for pnpm or yarn
 .pnpm/
 .yarn/
+.next/
