@@ -61,11 +61,11 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-
+client.handleRoutes(app); 
 client.once('ready', () => {
   isReady = true;
   client.logger.info(`Website running with: ${client.user.tag}!`);
-  client.handleRoutes(app);
+
 });
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
