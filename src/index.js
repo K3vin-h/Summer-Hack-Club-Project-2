@@ -40,7 +40,7 @@ for (const file of handlers) {
 };
 client.handleSlashCommands()
 client.handleEvents();
-
+client.handleRoutes(app); 
 client.on('debug', (msg) => client.logger.debug(`[DISCORD] ${msg}`));
 client.on('warn', (msg) => client.logger.warn(`[DISCORD] ${msg}`));
 client.on('error', (error) => client.logger.error(`[DISCORD]`, error));
@@ -55,13 +55,13 @@ const port = process.env.PORT;
 app.use(cors({
   origin: [
     "http://localhost:3000",        
-    "https://your-dashboard.vercel.app",
+    "https://summer-hack-club-project-2.vercel.app",
     "https://summer-hack-club-project-2.onrender.com"
   ],
   credentials: true
 }));
 app.use(express.json());
-client.handleRoutes(app); 
+
 client.once('ready', () => {
   isReady = true;
   client.logger.info(`Website running with: ${client.user.tag}!`);

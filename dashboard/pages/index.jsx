@@ -74,7 +74,7 @@ export default function Home() {
               </Link>
             )}
             <a
-              href="https://discord.com/oauth2/authorize?client_id=1382763637940420668&scope=bot%20applications.commands&permissions=268823648"
+              href="https://discord.com/oauth2/authorize?client_id=1393742095331889182&scope=bot%20applications.commands&permissions=268823648"
               className={styles.ctaButton}
             >
               Add to Server
