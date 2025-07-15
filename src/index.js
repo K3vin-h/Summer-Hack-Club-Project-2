@@ -55,7 +55,8 @@ const port = process.env.PORT;
 app.use(cors({
   origin: [
     "http://localhost:3000",        
-    "https://your-dashboard.vercel.app" 
+    "https://your-dashboard.vercel.app",
+    "https://summer-hack-club-project-2.onrender.com"
   ],
   credentials: true
 }));
