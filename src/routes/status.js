@@ -6,9 +6,13 @@ module.exports = (app, client) => {
       const mongoState = mongoose.connection.readyState;
       const mongoStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoState] || 'unknown';
 
-      res.status(200).json({
+       res.status(200).json({
         status: 'ok',
         serverTime: new Date(),
+        botStatus: 'online' ,
+        userTag: client.user?.tag || null,
+        uptime: process.uptime(),
+        guildCount: client.guilds.cache.size,
         mongoStatus,
         dashboardStatus: "online",
         apiStatus: "online",
@@ -23,5 +27,4 @@ module.exports = (app, client) => {
     }
   });
 };
-
 

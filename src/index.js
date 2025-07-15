@@ -60,6 +60,7 @@ app.use(cors({
   ],
   credentials: true
 }));
+
 app.use(express.json());
 client.handleRoutes(app); 
 client.once('ready', () => {
