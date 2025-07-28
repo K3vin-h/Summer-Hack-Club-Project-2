@@ -23,6 +23,7 @@ module.exports = {
       .setColor('#E74C3C')
       .setTitle('Permission Denied')
       .setDescription('You need the giveaway role to reroll giveaways.')
+       .setFooter({ text: 'Using /set_giveaway_roles to set the giveaway role.'})
       .setTimestamp();
 
     if (!(await client.function.giveaway.giveawayRoleFilter.hasGiveawayRole(interaction))) {

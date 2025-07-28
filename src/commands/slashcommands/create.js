@@ -48,6 +48,7 @@ module.exports = {
       const nopermissionEmbed = new EmbedBuilder()
         .setColor('#E74C3C')
         .setDescription('You do not have permission to create giveaways. You need the giveaway role.')
+        .setFooter({ text: 'Using /set_giveaway_roles to set the giveaway role.'})
         .setTimestamp();
       return interaction.reply({ embeds: [nopermissionEmbed], flags: MessageFlags.Ephemeral });
     }

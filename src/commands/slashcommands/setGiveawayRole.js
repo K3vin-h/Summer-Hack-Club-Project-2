@@ -8,12 +8,12 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .addRoleOption(option =>
             option.setName('manager_role')
-                .setDescription('Role required to manage giveaways')
+                .setDescription('Role required to manage (delete, end) giveaways')
                 .setRequired(false)
         )
         .addRoleOption(option =>
             option.setName('giveaway_role')
-                .setDescription('Role required to create giveaways')
+                .setDescription('Role required to create and reroll giveaways')
                 .setRequired(false)
         ),
     async execute(interaction, client) {

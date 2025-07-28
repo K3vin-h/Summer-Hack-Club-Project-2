@@ -16,6 +16,7 @@ module.exports = {
                 .setColor('#E74C3C')
                 .setTitle('Permission Denied')
                 .setDescription('You need the giveaway manager role to end giveaways.')
+                .setFooter({ text: 'Using /set_giveaway_roles to set the manager role.'})
                 .setTimestamp();
             return interaction.reply({ embeds: [noPermsEmbed], flags: MessageFlags.Ephemeral });
         }

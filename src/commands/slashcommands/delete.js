@@ -17,6 +17,7 @@ module.exports = {
             const nopermissionEmbed = new EmbedBuilder()
                 .setColor('#E74C3C')
                 .setDescription('You do not have permission to delete giveaways. You need the giveaway manager role.')
+                 .setFooter({ text: 'Using /set_giveaway_roles to set the manager role.'})
                 .setTimestamp();
             return interaction.reply({ embeds: [nopermissionEmbed], flags: MessageFlags.Ephemeral });
         }
