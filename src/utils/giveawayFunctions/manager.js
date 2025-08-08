@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
-const Giveaway = require('../../utils/schemas/GiveawayModel');
+const Giveaway = require('../schemas/GiveawayModel');
 const requirementsChecker = require('./validator');
-const GiveawayLogConfig = require('../../utils/schemas/GiveawayLogConfig');
+const GiveawayLogConfig = require('../schemas/GiveawayLogConfig');
 
 
 module.exports = {

@@ -38,6 +38,11 @@ export default function Home() {
             >
               Add to Server
             </a>
+
+            <Link href="/doc" className={styles.navButton}>
+              Documentation
+            </Link>
+
             {session ? (
               <Link href="/dashboard" className={styles.loginButton}>
                 Dashboard

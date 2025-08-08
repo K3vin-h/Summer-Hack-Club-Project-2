@@ -7,7 +7,6 @@ export default function StatusPage() {
   const [error, setError] = useState(null);
   const [incidents, setIncidents] = useState([]);
 
-  // Fetch system status
   useEffect(() => {
     async function fetchStatus() {
       try {
@@ -17,7 +16,6 @@ export default function StatusPage() {
         const data = await res.json();
         setStatus(data);
       } catch (err) {
-        
         console.error(err);
       }
     }
@@ -27,7 +25,6 @@ export default function StatusPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch incidents
   useEffect(() => {
     async function fetchIncidents() {
       try {
@@ -62,7 +59,8 @@ export default function StatusPage() {
     return `${days}d ${hours}h ${minutes}m ${secs}s`;
   };
 
-  const allSystemsOperational = status &&
+  const allSystemsOperational =
+    status &&
     status.apiStatus === "online" &&
     status.dashboardStatus === "online" &&
     status.mongoStatus === "connected" &&
@@ -73,10 +71,16 @@ export default function StatusPage() {
 
   return (
     <div className={styles.container}>
-      <Link href="/" className={styles.backLink}>← Back to Home</Link>
+      <Link href="/" className={styles.backLink}>
+        ← Back to Home
+      </Link>
 
       <h1 className={styles.title}>System Status</h1>
-      <div className={`${styles.statusHeader} ${allSystemsOperational ? styles.operational : styles.partial}`}>
+      <div
+        className={`${styles.statusHeader} ${
+          allSystemsOperational ? styles.operational : styles.partial
+        }`}
+      >
         {allSystemsOperational ? "All Systems Operational" : "Partial Outage"}
       </div>
 
@@ -87,21 +91,46 @@ export default function StatusPage() {
       ) : (
         <>
           <div className={styles.statusTable}>
-            {/* Core Services */}
             <h3 className={styles.sectionTitle}>Core Services</h3>
-            <StatusRow label="API" value={getStatusText(status.apiStatus)} color={getStatusColor(status.apiStatus)} />
-            <StatusRow label="Dashboard" value={getStatusText(status.dashboardStatus)} color={getStatusColor(status.dashboardStatus)} />
-            <StatusRow label="Database" value={getStatusText(status.mongoStatus)} color={getStatusColor(status.mongoStatus)} />
-            <StatusRow label="Discord Bot" value={getStatusText(status.botStatus)} color={getStatusColor(status.botStatus)} />
+            <StatusRow
+              label="API"
+              value={getStatusText(status.apiStatus)}
+              color={getStatusColor(status.apiStatus)}
+            />
+            <StatusRow
+              label="Dashboard"
+              value={getStatusText(status.dashboardStatus)}
+              color={getStatusColor(status.dashboardStatus)}
+            />
+            <StatusRow
+              label="Database"
+              value={getStatusText(status.mongoStatus)}
+              color={getStatusColor(status.mongoStatus)}
+            />
+            <StatusRow
+              label="Discord Bot"
+              value={getStatusText(status.botStatus)}
+              color={getStatusColor(status.botStatus)}
+            />
 
-            {/* Additional Information */}
             <h3 className={styles.sectionTitle}>Additional Information</h3>
-            <StatusRow label="Uptime" value={formatUptime(status.uptime)} color="#3498db" />
-            <StatusRow label="Guilds" value={status.guildCount} color="#3498db" />
-            <StatusRow label="Server Time" value={new Date(status.serverTime).toLocaleString()} color="#f39c12" />
+            <StatusRow
+              label="Uptime"
+              value={formatUptime(status.uptime)}
+              color="#3498db"
+            />
+            <StatusRow
+              label="Guilds"
+              value={status.guildCount}
+              color="#3498db"
+            />
+            <StatusRow
+              label="Server Time"
+              value={new Date(status.serverTime).toLocaleString()}
+              color="#f39c12"
+            />
           </div>
 
-          {/* Incident Section */}
           <div className={styles.pastIncidents}>
             <h2>Unresolved Incidents</h2>
             {unresolvedIncidents.length === 0 ? (
@@ -113,13 +142,14 @@ export default function StatusPage() {
                     {new Date(incident.date).toLocaleString()}
                   </div>
                   <div className={styles.incidentDesc}>
-                    <strong>{incident.severity.toUpperCase()}</strong>: {incident.description}
+                    <strong>{incident.severity.toUpperCase()}</strong>:{" "}
+                    {incident.description}
                   </div>
                 </div>
               ))
             )}
 
-            <h2 >Resolved Incidents</h2>
+            <h2>Resolved Incidents</h2>
             {resolvedIncidents.length === 0 ? (
               <p className={styles.incidentDesc}>No past incidents reported.</p>
             ) : (
@@ -129,9 +159,11 @@ export default function StatusPage() {
                     {new Date(incident.date).toLocaleString()}
                   </div>
                   <div className={styles.incidentDesc}>
-                    <strong>{incident.severity.toUpperCase()}</strong>: {incident.description}
+                    <strong>{incident.severity.toUpperCase()}</strong>:{" "}
+                    {incident.description}
                     <div>
-                      Resolved at: {new Date(incident.resolvedAt).toLocaleString()}
+                      Resolved at:{" "}
+                      {new Date(incident.resolvedAt).toLocaleString()}
                     </div>
                   </div>
                 </div>

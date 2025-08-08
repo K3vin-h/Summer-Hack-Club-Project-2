@@ -8,7 +8,7 @@ export default function IncidentsPage() {
   const [incidents, setIncidents] = useState([]);
   const [form, setForm] = useState({ description: "", severity: "medium" });
   const { data: session, status } = useSession();
- const router = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -54,54 +54,56 @@ export default function IncidentsPage() {
 
   return (
     <>
-     {session?.isOwner && ( 
-      <div className={styles.container}>
-        <Link href="/" className={styles.backLink}>
-          ← Back to Home
-        </Link>
-        <h1>Incident Manager</h1>
+      {session?.isOwner && (
+        <div className={styles.container}>
+          <Link href="/" className={styles.backLink}>
+            ← Back to Home
+          </Link>
+          <h1>Incident Manager</h1>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <textarea
-            placeholder="Describe the incident..."
-            minLength={10}
-            required
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-          />
-          <select
-            value={form.severity}
-            onChange={(e) => setForm({ ...form, severity: e.target.value })}
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-          <button type="submit">Create Incident</button>
-        </form>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <textarea
+              placeholder="Describe the incident..."
+              minLength={10}
+              required
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+            />
+            <select
+              value={form.severity}
+              onChange={(e) => setForm({ ...form, severity: e.target.value })}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+            <button type="submit">Create Incident</button>
+          </form>
 
-        <h2>Unresolved Incidents</h2>
-        {incidents.length === 0 ? (
-          <p className={styles.empty}>🎉 All incidents are resolved!</p>
-        ) : (
-          <ul className={styles.list}>
-            {incidents.map((incident) => (
-              <li key={incident._id} className={styles.incident}>
-                <div>
-                  <p>{incident.description}</p>
-                  <small>
-                    Severity: {incident.severity} | Date:{" "}
-                    {new Date(incident.date).toLocaleString()}
-                  </small>
-                </div>
-                <button onClick={() => resolveIncident(incident._id)}>
-                  Resolve
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+          <h2>Unresolved Incidents</h2>
+          {incidents.length === 0 ? (
+            <p className={styles.empty}>🎉 All incidents are resolved!</p>
+          ) : (
+            <ul className={styles.list}>
+              {incidents.map((incident) => (
+                <li key={incident._id} className={styles.incident}>
+                  <div>
+                    <p>{incident.description}</p>
+                    <small>
+                      Severity: {incident.severity} | Date:{" "}
+                      {new Date(incident.date).toLocaleString()}
+                    </small>
+                  </div>
+                  <button onClick={() => resolveIncident(incident._id)}>
+                    Resolve
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
     </>
   );

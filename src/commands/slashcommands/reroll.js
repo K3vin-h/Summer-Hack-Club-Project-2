@@ -1,6 +1,7 @@
 const {
   SlashCommandBuilder,
-  EmbedBuilder
+  EmbedBuilder,
+  MessageFlags
 } = require('discord.js');
 const Giveaway = require('../../utils/schemas/GiveawayModel');
 const Log = require('../../utils/schemas/GiveawayLogConfig');
@@ -27,7 +28,7 @@ module.exports = {
       .setTimestamp();
 
     if (!(await client.function.giveaway.giveawayRoleFilter.hasGiveawayRole(interaction))) {
-      return interaction.reply({ embeds: [noPermsEmbed], flags: 64 });
+      return interaction.reply({ embeds: [noPermsEmbed], flags: MessageFlags.Ephemeral });
     }
 
     const messageId = interaction.options.getString('message_id');
@@ -43,7 +44,7 @@ module.exports = {
             .setTitle('Giveaway Not Found')
             .setDescription(`No giveaway was found with the message ID: \`${messageId}\``)
             .setTimestamp()],
-          flags: 64
+          flags: MessageFlags.Ephemeral
         });
       }
 
@@ -54,7 +55,7 @@ module.exports = {
             .setTitle('Giveaway Still Active')
             .setDescription('This giveaway has not ended yet.')
             .setTimestamp()],
-          flags: 64
+          flags: MessageFlags.Ephemeral
         });
       }
 
@@ -66,7 +67,7 @@ module.exports = {
             .setTitle('Channel Not Found')
             .setDescription('The giveaway channel no longer exists.')
             .setTimestamp()],
-          flags: 64
+          flags: MessageFlags.Ephemeral
         });
       }
 
@@ -78,7 +79,7 @@ module.exports = {
             .setTitle('Message Not Found')
             .setDescription('Could not find the giveaway message.')
             .setTimestamp()],
-          flags: 64
+          flags: MessageFlags.Ephemeral
         });
       }
 
@@ -175,7 +176,7 @@ module.exports = {
           .setDescription(`Successfully rerolled the giveaway for **${giveaway.prize}**.`)
           .addFields({ name: 'New Winners', value: winners.length.toString(), inline: true })
           .setTimestamp()],
-        flags: 64
+        flags: MessageFlags.Ephemeral
       });
 
     } catch (error) {
@@ -186,7 +187,7 @@ module.exports = {
           .setTitle('Unexpected Error')
           .setDescription('An error occurred while rerolling the giveaway.')
           .setTimestamp()],
-        flags: 64
+        flags: MessageFlags.Ephemeral
       });
     }
   }

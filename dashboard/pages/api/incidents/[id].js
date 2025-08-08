@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/mongoose";
-import Incident from "../../../models/incident";
+import Incident from "@/models/incident";
 
 export default async function handler(req, res) {
   await dbConnect();

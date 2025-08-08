@@ -1,12 +1,12 @@
 import { getToken } from "next-auth/jwt";
 import dbConnect from "../../../lib/mongoose";
-import Giveaway from "../../../models/giveawayModel";
+import Giveaway from "@/models/giveawayModel";
 
 
 export default async function handler(req, res) {
   const token = await getToken({ req });
 
-  if (!token ) {
+  if (!token) {
     return res.status(403).json({ error: "Forbidden" });
   }
 

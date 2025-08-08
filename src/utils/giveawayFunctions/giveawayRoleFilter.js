@@ -1,4 +1,4 @@
-const GiveawayLogConfig = require('../../utils/schemas/GiveawayLogConfig');
+const GiveawayLogConfig = require('../schemas/GiveawayLogConfig');
 module.exports = {
     async hasGiveawayRole(interaction) {
         const config = await GiveawayLogConfig.findOne({ guildId: interaction.guild.id });
