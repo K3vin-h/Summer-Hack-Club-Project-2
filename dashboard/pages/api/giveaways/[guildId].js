@@ -1,5 +1,5 @@
 import dbConnect from "../../../lib/mongoose";
-import Giveaway from "../../../models/giveawayModel";
+import Giveaway from "@/models/giveawayModel";
 import { getSession } from "next-auth/react";
 export default async function handler(req, res) {
   const session = await getSession({ req });

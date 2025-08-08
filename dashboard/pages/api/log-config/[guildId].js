@@ -1,5 +1,5 @@
 import dbConnect from "../../../lib/mongoose";
-import GiveawayLogConfig from "../../models/giveawayLogConfig";
+import GiveawayLogConfig from "@/models/giveawayLogConfig";
 
 export default async function handler(req, res) {
   const { guildId } = req.query;
