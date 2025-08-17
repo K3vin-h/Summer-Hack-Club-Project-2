@@ -21,5 +21,3 @@ module.exports = async (client) => {
 module.exports.config = {
     name: 'cleanupOldGiveaways',
 }
-
-

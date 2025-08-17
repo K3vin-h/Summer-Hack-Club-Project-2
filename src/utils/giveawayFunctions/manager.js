@@ -3,8 +3,9 @@ const Giveaway = require('../schemas/GiveawayModel');
 const requirementsChecker = require('./validator');
 const GiveawayLogConfig = require('../schemas/GiveawayLogConfig');
 
-
+// Giveaway manager module
 module.exports = {
+    // Creates a new giveaway
     async createGiveaway(interaction, client) {
         const options = interaction.options;
         const prize = options.getString('prize');
@@ -16,14 +17,20 @@ module.exports = {
         const bonusEntriesStr = options.getString('bonus_entries');
         const bypassRolesStr = options.getString('bypass_roles');
         const channel = options.getChannel('channel') || interaction.channel;
+
+        // Validate prize length
         if (!prize || prize.length > 256) {
             return interaction.reply({ content: 'Prize must be between 1 and 256 characters long.', flags: MessageFlags.Ephemeral });
         };
+
+        // Parse duration string to milliseconds
         const durationMs = this.parseDuration(duration);
         if (durationMs === 0) {
             return interaction.reply({ content: 'Invalid duration format. Use something like 1d, 2h, 30m', flags: MessageFlags.Ephemeral });
         };
         const endTime = new Date(Date.now() + durationMs);
+
+        // Fetch guild and user info for logging
         let guildName = "Unknown Server";
         let hostedTag = "Unknown";
         let creatorTag = "Unknown";
@@ -45,6 +52,8 @@ module.exports = {
         } catch (e) {
             client.logger.error('Failed to fetch creator user:', err);
         };
+
+        // Prepare giveaway data object
         const giveawayData = {
             messageId: '',
             channelId: channel.id,
@@ -65,13 +74,19 @@ module.exports = {
             created: interaction.user.id,
             creatorTag
         };
+
         try {
+            // Save giveaway to database
             const giveaway = new Giveaway(giveawayData);
+            // Create embed and buttons for giveaway message
             const embed = await this.createGiveawayEmbed(giveaway, hosted.id, client);
             const joinButton = this.createJoinButton();
+            // Send giveaway message
             const message = await channel.send({ embeds: [embed], components: [joinButton] });
             giveaway.messageId = message.id;
             await giveaway.save();
+
+            // Log giveaway creation if configured
             const log = await GiveawayLogConfig.findOne({ guildId: interaction.guild.id });
             if (log.channels.giveawayCreate) {
                 const guild = await client.guilds.fetch(interaction.guild.id);
@@ -89,6 +104,7 @@ module.exports = {
                             { name: 'Created By', value: `<@${interaction.user.id}> (${creatorTag})`, inline: false }
                         )
                         .setTimestamp();
+                    // Add extra fields if requirements exist
                     if (giveaway.requiredRoleId) {
                         logEmbed.addFields({
                             name: 'Required Role',
@@ -138,6 +154,8 @@ module.exports = {
             });
         };
     },
+
+    // Parses duration string (e.g. "1d2h30m") to milliseconds
     parseDuration(duration) {
         let durationMs = 0;
         const durationRegex = /(\d+)([dhm])/g;
@@ -151,6 +169,8 @@ module.exports = {
         }
         return durationMs;
     },
+
+    // Parses bonus entries string to array of objects
     parseBonusEntries(bonusEntriesStr) {
         try {
             return bonusEntriesStr.split(',').map(entry => entry.split(':')).filter(([roleId, entriesCount]) => roleId && entriesCount && !isNaN(parseInt(entriesCount))).map(([roleId, entriesCount]) => ({
@@ -162,6 +182,8 @@ module.exports = {
             return [];
         };
     },
+
+    // Creates the giveaway embed message
     async createGiveawayEmbed(giveaway, hostId, client) {
         const totalParticipants = giveaway.entries.length;
         const descriptionParts = [
@@ -170,6 +192,7 @@ module.exports = {
             `**Hosted by:** <@${hostId}>`,
             `**Total Participants:** ${totalParticipants}`,
         ];
+        // Add requirements and bonus info
         if (giveaway.requiredRoleId) {
             descriptionParts.push(`**Required Role:** <@&${giveaway.requiredRoleId}>`);
         };
@@ -193,6 +216,8 @@ module.exports = {
             .setDescription(descriptionParts.length > 0 ? descriptionParts.join('\n') : ' ')
             .setFooter({ text: 'Click the button below to enter!' });
     },
+
+    // Creates join/leave buttons for giveaway
     createJoinButton() {
         return new ActionRowBuilder()
             .addComponents(
@@ -206,9 +231,12 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
     },
+
+    // Handles user joining a giveaway
     async handleGiveawayJoin(interaction, client) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         try {
+            // Find active giveaway
             const giveaway = await Giveaway.findOne({ messageId: interaction.message.id, ended: false });
             if (!giveaway) {
                 return interaction.editReply({
@@ -221,10 +249,13 @@ module.exports = {
                     flags: MessageFlags.Ephemeral
                 });
             };
+            // Calculate entries (base + bonus)
             const baseEntries = 1;
             const bonusEntries = requirementsChecker.calculateBonusEntries(giveaway, interaction.member);
             const totalEntries = baseEntries + bonusEntries;
             const existingEntry = giveaway.entries.find(entry => entry.userId === interaction.user.id);
+
+            // Update entry if changed
             if (existingEntry) {
                 if (totalEntries > existingEntry.entries) {
                     await this.updateUserEntries(giveaway, interaction.user.id, totalEntries);
@@ -259,6 +290,7 @@ module.exports = {
                         flags: MessageFlags.Ephemeral
                     });
                 } else {
+                    // Already entered, no change
                     return interaction.editReply({
                         embeds: [
                             new EmbedBuilder()
@@ -274,6 +306,8 @@ module.exports = {
                     });
                 };
             };
+
+            // Check requirements before joining
             const meetsRequirements = await requirementsChecker.checkRequirements(giveaway, interaction.member);
             if (!meetsRequirements) {
                 return interaction.editReply({
@@ -287,8 +321,12 @@ module.exports = {
                     flags: MessageFlags.Ephemeral
                 });
             };
+
+            // Add user entry
             await this.updateUserEntries(giveaway, interaction.user.id, totalEntries);
             await this.updateGiveawayEmbed(giveaway, client);
+
+            // Log entry if configured
             const log = await GiveawayLogConfig.findOne({ guildId: interaction.guild.id });
             if (log.channels.giveawayEntry) {
                 const guild = await client.guilds.fetch(interaction.guild.id);
@@ -309,6 +347,8 @@ module.exports = {
                     await logChannel.send({ embeds: [logEmbed] });
                 };
             };
+
+            // Confirm entry to user
             return interaction.editReply({
                 embeds: [
                     new EmbedBuilder()
@@ -336,9 +376,12 @@ module.exports = {
 
         };
     },
+
+    // Handles user leaving a giveaway
     async handleGiveawayLeave(interaction, client) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         try {
+            // Find active giveaway
             const giveaway = await Giveaway.findOne({ messageId: interaction.message.id, ended: false });
             if (!giveaway) {
                 const errorEmbed = new EmbedBuilder()
@@ -348,6 +391,7 @@ module.exports = {
                     .setTimestamp();
                 return interaction.editReply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
             };
+            // Check if user entered
             const entryIndex = giveaway.entries.findIndex(entry => entry.userId === interaction.user.id);
             if (entryIndex === -1) {
                 const warnEmbed = new EmbedBuilder()
@@ -357,9 +401,12 @@ module.exports = {
                     .setTimestamp();
                 return interaction.editReply({ embeds: [warnEmbed], flags: MessageFlags.Ephemeral });
             };
+            // Remove entry
             giveaway.entries.splice(entryIndex, 1);
             await giveaway.save();
             await this.updateGiveawayEmbed(giveaway, client);
+
+            // Log leave if configured
             const log = await GiveawayLogConfig.findOne({ guildId: interaction.guild.id });
             if (log.channels.giveawayLeave) {
                 const guild = await client.guilds.fetch(interaction.guild.id);
@@ -383,6 +430,8 @@ module.exports = {
                     await logChannel.send({ embeds: [logEmbed] });
                 };
             };
+
+            // Confirm leave to user
             const successEmbed = new EmbedBuilder()
                 .setColor('#00CC66')
                 .setTitle('Left Giveaway')
@@ -399,6 +448,8 @@ module.exports = {
             return interaction.editReply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
         };
     },
+
+    // Updates user entries in giveaway
     async updateUserEntries(giveaway, userId, entries) {
         try {
             const existingEntryIndex = giveaway.entries.findIndex(entry => entry.userId === userId);
@@ -413,6 +464,8 @@ module.exports = {
             throw error;
         };
     },
+
+    // Updates the giveaway embed message with new participant count
     async updateGiveawayEmbed(giveaway, client) {
         try {
             const guild = await client.guilds.fetch(giveaway.guildId);
@@ -427,6 +480,7 @@ module.exports = {
                 `**Hosted by:** <@${giveaway.hosted}>`,
                 ''
             ];
+            // Add requirements and bonus info
             if (giveaway.requiredRoleId) {
                 descriptionParts.push(`**Required Role:** <@&${giveaway.requiredRoleId}>`);
             };
@@ -451,11 +505,14 @@ module.exports = {
         };
     },
 
+    // Ends the giveaway, picks winners, and updates messages/logs
     async endGiveaway(interaction, giveaway, client, endedManually = false, endedBy = null) {
         try {
             const guild = await client.guilds.fetch(giveaway.guildId);
             const channel = await guild.channels.fetch(giveaway.channelId);
             const message = await channel.messages.fetch(giveaway.messageId);
+
+            // Collect valid participants and entries
             const participants = new Set();
             const validEntries = [];
             for (const entry of giveaway.entries) {
@@ -472,6 +529,8 @@ module.exports = {
                     client.logger.debug(`User ${entry.userId} not found in guild ${guild.id}`);
                 };
             };
+
+            // Pick winners randomly from valid entries
             const winners = [];
             const uniqueEntries = [...new Set(validEntries)];
             for (let i = 0; i < giveaway.winners && uniqueEntries.length > 0; i++) {
@@ -479,14 +538,20 @@ module.exports = {
                 winners.push(uniqueEntries[randomIndex]);
                 uniqueEntries.splice(randomIndex, 1);
             };
+
+            // Mark giveaway as ended
             giveaway.ended = true;
             giveaway.endTime = new Date();
             await giveaway.save();
+
+            // Prepare participant list for embed
             const participantList = Array.from(participants).map(id => `<@${id}>`);
             const participantChunks = [];
             while (participantList.length > 0) {
                 participantChunks.push(participantList.splice(0, 20).join(', '));
             };
+
+            // Update giveaway message embed
             const embed = new EmbedBuilder(message.embeds[0])
                 .setColor('#E74C3C')
                 .setTitle(`${giveaway.prize}`)
@@ -494,7 +559,6 @@ module.exports = {
                     `**Winner(s):** ${winners.map(id => `<@${id}>`).join(', ') || 'No valid participants'}\n` +
                     `**Total Participants:** ${participants.size}\n` +
                     `**Hosted by:** <@${giveaway.hosted}>`
-
                 )
                 .setFooter({
                     text: `Giveaway ended at ${new Date().toLocaleString('en-US', {
@@ -509,6 +573,7 @@ module.exports = {
                     })} UTC`
                 });
 
+            // Add manual end info if applicable
             if (endedManually && endedBy) {
                 embed.addFields({
                     name: 'Ended Early By',
@@ -516,6 +581,8 @@ module.exports = {
                     inline: true,
                 });
             };
+
+            // Disable join button after ending
             const components = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
@@ -525,6 +592,8 @@ module.exports = {
                         .setDisabled(true)
                 );
             await message.edit({ embeds: [embed], components: [components] });
+
+            // Announce winners or no winner
             if (winners.length > 0) {
                 const winnerEmbed = new EmbedBuilder()
                     .setColor('#2ECC71')
@@ -556,6 +625,8 @@ module.exports = {
                     embeds: [noWinnerEmbed]
                 });
             }
+
+            // Log giveaway end if configured
             const log = await GiveawayLogConfig.findOne({ guildId: interaction?.guild?.id || giveaway.guildId });
             if (log.channels.giveawayEnd) {
                 const logChannel = await guild.channels.fetch(log.channels.giveawayEnd)
@@ -605,6 +676,8 @@ module.exports = {
             };
         };
     },
+
+    // Formats duration in ms to human readable string
     formatDuration(ms) {
         const totalMinutes = Math.floor(ms / (1000 * 60));
         const days = Math.floor(totalMinutes / (60 * 24));

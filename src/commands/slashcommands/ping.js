@@ -31,3 +31,4 @@ module.exports = {
     await interaction.editReply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
+

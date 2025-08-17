@@ -23,23 +23,22 @@ function updateGiveawayEmbed(giveaway, client) {
 function buildDescription(giveaway) {
   const desc = [
     `**Winner(s):** ${giveaway.winners}`,
-    `**Ends in:** <t:${Math.floor(new Date(giveaway.endTime).getTime() / 1000)}:R>`,
+    `**Ends In:** <t:${Math.floor(new Date(giveaway.endTime).getTime() / 1000)}:R>`,
     `**Total Participants:** ${giveaway.entries?.length || 0}`,
-    `**Hosted by:** <@${giveaway.hosted}>`,
+    `**Hosted By:** <@${giveaway.hosted}>`,
     ""
   ];
 
   if (giveaway.requiredRoleId)
     desc.push(`**Required Role:** <@&${giveaway.requiredRoleId}>`);
   if (giveaway.requiredJoinServerId)
-    desc.push(`**Must Join Server:** \`${giveaway.requiredJoinServerId}\``);
+    desc.push(`**Must Be In Server:** \`${giveaway.requiredJoinServerId}\``);
   if (giveaway.bonusEntries?.length)
     desc.push(`**Bonus Entries:**\n${giveaway.bonusEntries.map(e => `<@&${e.roleId}>: **${e.entries}**`).join("\n")}`);
   if (giveaway.bypassRoles?.length)
-    desc.push(`**Bypass Roles:**\n${giveaway.bypassRoles.map(id => `<@&${id}>`).join("\n")}`);
+    desc.push(`**Roles That Bypass Requirements:**\n${giveaway.bypassRoles.map(id => `<@&${id}>`).join("\n")}`);
 
   return desc.join("\n");
- 
 }
 
 module.exports = updateGiveawayEmbed;
